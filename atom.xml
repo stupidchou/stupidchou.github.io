@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>赵周辰辰的blog空间</title>
+  
+  <subtitle>王田田是我的女儿</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://yoursite.com/"/>
+  <updated>2019-08-30T07:21:36.368Z</updated>
+  <id>http://yoursite.com/</id>
+  
+  <author>
+    <name>赵周辰辰</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>简谈iOS的单例，看看你理解对了吗？</title>
+    <link href="http://yoursite.com/2017/08/30/%E7%AE%80%E8%B0%88iOS%E7%9A%84%E5%8D%95%E4%BE%8B%EF%BC%8C%E7%9C%8B%E7%9C%8B%E4%BD%A0%E7%90%86%E8%A7%A3%E5%AF%B9%E4%BA%86%E5%90%97%EF%BC%9F/"/>
+    <id>http://yoursite.com/2017/08/30/简谈iOS的单例，看看你理解对了吗？/</id>
+    <published>2017-08-30T06:21:31.000Z</published>
+    <updated>2019-08-30T07:21:36.368Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="单例模式很常见，但是，能真正把单利模式写对的却很少。在iOS中，一般我们都是用官方推荐的写法来写单例："><a href="#单例模式很常见，但是，能真正把单利模式写对的却很少。在iOS中，一般我们都是用官方推荐的写法来写单例：" class="headerlink" title="单例模式很常见，但是，能真正把单利模式写对的却很少。在iOS中，一般我们都是用官方推荐的写法来写单例："></a>单例模式很常见，但是，能真正把单利模式写对的却很少。在iOS中，一般我们都是用官方推荐的写法来写单例：</h3><p>//举例说明    </p><p>static URLManager * ins = nil;</p><ul><li>(instancetype)sharedInstance {<br>static dispatch_once_t onceToken;<br>dispatch_once(&amp;onceToken, ^{<br>ins = [[URLManager alloc] init];<br>});<br>return ins;<br>}<br>这也是我们单例模式的标准写法。 在使用时，我们只需要</li></ul><p>URLManager* a = [URLManager sharedInstance];</p><p>就可以用 a 这个单例来干很多事情了，看起来没有问题。在很多实际的项目中，很多人也的确是这么做的。</p><h3 id="但是会出现问题"><a href="#但是会出现问题" class="headerlink" title="但是会出现问题"></a>但是会出现问题</h3><p>在多人开发中，并不能保证所有人都会使用 sharedInstance 方法来创建对象；而一旦有人用 alloc，new 等来创建对象，这就不是单例了。例如：</p><p>URLManager* a = [URLManager sharedInstance];<br>URLManager* b = [[URLManager alloc] init];<br>URLManager* c = [URLManager new];</p><p>查看 a、b、c ：</p><img src="/2017/08/30/简谈iOS的单例，看看你理解对了吗？/1.jpg" title="This is an example image"><p>可以看到，a、b、c 不是同一个对象，而所谓单例，就是不管我用何种方法创建对象，都必须是同一个。所以，单例模式，绝不是一个 sharedInstance 就够了。</p><h3 id="方案一"><a href="#方案一" class="headerlink" title="方案一"></a>方案一</h3><p>那么如何避免这种问题呢？我们知道：在对象创建的时候，alloc、new都会调用到 allocWithZone: 方法；使用拷贝创建对象时，会调用 copyWithZone: 、mutableCopyWithZone:方法；那么，重写这些方法，就可以让创建的对象唯一。</p><p>+(id)allocWithZone:(NSZone *)zone{<br>return [self sharedInstance];<br>}<br>-(id)copyWithZone:(NSZone *)zone{<br>return [[self class] sharedInstance];<br>}<br>-(id)mutableCopyWithZone:(NSZone *)zone{<br>return [[self class] sharedInstance];<br>}</p><p>再运行，看一看a、b、c：</p><img src="/2017/08/30/简谈iOS的单例，看看你理解对了吗？/2.jpg" title="This is an example image"><p>都是同一个对象！大功告成！</p><h3 id="方案二"><a href="#方案二" class="headerlink" title="方案二"></a>方案二</h3><p>此外，还有一种方法，就是直接禁用掉 alloc、new 、copy等方法：</p><ul><li>(instancetype)sharedInstance;</li><li>(instancetype) alloc <strong>attribute</strong>((unavailable(“replace with ‘sharedInstance’”)));</li><li>(instancetype) new <strong>attribute</strong>((unavailable(“replace with ‘sharedInstance’”)));</li></ul><p>-(instancetype) copy <strong>attribute</strong>((unavailable(“replace with ‘sharedInstance’”)));<br>-(instancetype) mutableCopy <strong>attribute</strong>((unavailable(“replace with ‘sharedInstance’”)));</p><ul><li>(instancetype)sharedInstance {<br>static URLManager * ins = nil;<br>static dispatch_once_t onceToken;<br>dispatch_once(&amp;onceToken, ^{<br>ins = [[super allocWithZone:nil] init];<br>});<br>return ins;<br>}</li></ul><p>如此，在调用这些方法时就会报错，提示使用 sharedInstance 方法：</p><img src="/2017/08/30/简谈iOS的单例，看看你理解对了吗？/3.jpg" title="This is an example image"><p>以此，也可以达到单例模式的要求，始终只有一个对象。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;单例模式很常见，但是，能真正把单利模式写对的却很少。在iOS中，一般我们都是用官方推荐的写法来写单例：&quot;&gt;&lt;a href=&quot;#单例模式很常见，但是，能真正把单利模式写对的却很少。在iOS中，一般我们都是用官方推荐的写法来写单例：&quot; class=&quot;headerlin
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>my first blog is about what?</title>
+    <link href="http://yoursite.com/2017/07/30/my-first-blog-is-about-what/"/>
+    <id>http://yoursite.com/2017/07/30/my-first-blog-is-about-what/</id>
+    <published>2017-07-30T03:18:31.000Z</published>
+    <updated>2019-08-30T07:23:32.445Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="共勉"><a href="#共勉" class="headerlink" title="共勉"></a>共勉</h3><p>作为一个程序猿，为了提高我自己的知识面，也为了给大家分享一下我自己在平常所遇到的问题，以及我所接触的知识点，特别花了九块大洋开了一个我自己的域名，之后开启写Blog的习惯。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;共勉&quot;&gt;&lt;a href=&quot;#共勉&quot; class=&quot;headerlink&quot; title=&quot;共勉&quot;&gt;&lt;/a&gt;共勉&lt;/h3&gt;&lt;p&gt;作为一个程序猿，为了提高我自己的知识面，也为了给大家分享一下我自己在平常所遇到的问题，以及我所接触的知识点，特别花了九块大洋开了一个我自己的
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+</feed>
