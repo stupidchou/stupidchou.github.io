@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="赵周辰辰的blog空间">
 <meta property="og:description" content="###单例模式很常见，但是，能真正把单利模式写对的却很少。在iOS中，一般我们都是用官方推荐的写法来写单例： //举例说明      static URLManager * ins = nil; + (instancetype)sharedInstance {     static dispatch_once_t onceToken;     dispatch_once(&amp;amp;onceToke">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:updated_time" content="2019-08-30T06:38:52.819Z">
+<meta property="og:updated_time" content="2019-08-30T06:57:12.631Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="简谈iOS的单例，看看你理解对了吗？">
 <meta name="twitter:description" content="###单例模式很常见，但是，能真正把单利模式写对的却很少。在iOS中，一般我们都是用官方推荐的写法来写单例： //举例说明      static URLManager * ins = nil; + (instancetype)sharedInstance {     static dispatch_once_t onceToken;     dispatch_once(&amp;amp;onceToke">
@@ -313,7 +313,9 @@
 <pre><code>URLManager* a = [URLManager sharedInstance];
 URLManager* b = [[URLManager alloc] init];
 URLManager* c = [URLManager new];</code></pre><p>查看 a、b、c ：</p>
-<p>  /Users/zzq/Desktop/a0a48e9150b369dcbc74072e7f7083880d5.webp</p>
+ 
+
+
 <p>  可以看到，a、b、c 不是同一个对象，而所谓单例，就是不管我用何种方法创建对象，都必须是同一个。所以，单例模式，绝不是一个 sharedInstance 就够了。</p>
 <p>###方案一<br>那么如何避免这种问题呢？我们知道：在对象创建的时候，alloc、new都会调用到 allocWithZone: 方法；使用拷贝创建对象时，会调用 copyWithZone: 、mutableCopyWithZone:方法；那么，重写这些方法，就可以让创建的对象唯一。</p>
 <pre><code>+(id)allocWithZone:(NSZone *)zone{
@@ -443,7 +445,7 @@ return ins;
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
