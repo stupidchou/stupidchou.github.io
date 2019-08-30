@@ -433,7 +433,7 @@
 <p>###但是会出现问题<br>在多人开发中，并不能保证所有人都会使用 sharedInstance 方法来创建对象；而一旦有人用 alloc，new 等来创建对象，这就不是单例了。例如：</p>
 <p>URLManager* a = [URLManager sharedInstance];<br>URLManager* b = [[URLManager alloc] init];<br>URLManager* c = [URLManager new];</p>
 <p>查看 a、b、c ：</p>
-
+<img src="/2017/08/30/简谈iOS的单例，看看你理解对了吗？/1.jpg" title="This is an example image">
 
 
 <p>可以看到，a、b、c 不是同一个对象，而所谓单例，就是不管我用何种方法创建对象，都必须是同一个。所以，单例模式，绝不是一个 sharedInstance 就够了。</p>
