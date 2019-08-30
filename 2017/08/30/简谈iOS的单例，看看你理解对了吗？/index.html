@@ -87,7 +87,9 @@
 <meta property="og:description" content="单例模式很常见，但是，能真正把单利模式写对的却很少。在iOS中，一般我们都是用官方推荐的写法来写单例：//举例说明     static URLManager * ins = nil;  (instancetype)sharedInstance {static dispatch_once_t onceToken;dispatch_once(&amp;amp;onceToken, ^{ins = [[URL">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://yoursite.com/2017/08/30/简谈iOS的单例，看看你理解对了吗？/1.jpg">
-<meta property="og:updated_time" content="2019-08-30T07:20:14.334Z">
+<meta property="og:image" content="http://yoursite.com/2017/08/30/简谈iOS的单例，看看你理解对了吗？/2.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/08/30/简谈iOS的单例，看看你理解对了吗？/3.jpg">
+<meta property="og:updated_time" content="2019-08-30T07:21:36.368Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="简谈iOS的单例，看看你理解对了吗？">
 <meta name="twitter:description" content="单例模式很常见，但是，能真正把单利模式写对的却很少。在iOS中，一般我们都是用官方推荐的写法来写单例：//举例说明     static URLManager * ins = nil;  (instancetype)sharedInstance {static dispatch_once_t onceToken;dispatch_once(&amp;amp;onceToken, ^{ins = [[URL">
@@ -318,6 +320,7 @@
 <h3 id="方案一"><a href="#方案一" class="headerlink" title="方案一"></a>方案一</h3><p>那么如何避免这种问题呢？我们知道：在对象创建的时候，alloc、new都会调用到 allocWithZone: 方法；使用拷贝创建对象时，会调用 copyWithZone: 、mutableCopyWithZone:方法；那么，重写这些方法，就可以让创建的对象唯一。</p>
 <p>+(id)allocWithZone:(NSZone *)zone{<br>return [self sharedInstance];<br>}<br>-(id)copyWithZone:(NSZone *)zone{<br>return [[self class] sharedInstance];<br>}<br>-(id)mutableCopyWithZone:(NSZone *)zone{<br>return [[self class] sharedInstance];<br>}</p>
 <p>再运行，看一看a、b、c：</p>
+<img src="/2017/08/30/简谈iOS的单例，看看你理解对了吗？/2.jpg" title="This is an example image">
 
 <p>都是同一个对象！大功告成！</p>
 <h3 id="方案二"><a href="#方案二" class="headerlink" title="方案二"></a>方案二</h3><p>此外，还有一种方法，就是直接禁用掉 alloc、new 、copy等方法：</p>
@@ -331,7 +334,7 @@
 <li>(instancetype)sharedInstance {<br>static URLManager * ins = nil;<br>static dispatch_once_t onceToken;<br>dispatch_once(&amp;onceToken, ^{<br>ins = [[super allocWithZone:nil] init];<br>});<br>return ins;<br>}</li>
 </ul>
 <p>如此，在调用这些方法时就会报错，提示使用 sharedInstance 方法：</p>
-
+<img src="/2017/08/30/简谈iOS的单例，看看你理解对了吗？/3.jpg" title="This is an example image">
 
 <p>以此，也可以达到单例模式的要求，始终只有一个对象。</p>
 
