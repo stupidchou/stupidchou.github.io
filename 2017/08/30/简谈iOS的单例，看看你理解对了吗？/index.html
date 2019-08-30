@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="###单例模式很常见，但是，能真正把单利模式写对的却很少。在iOS中，一般我们都是用官方推荐的写法来写单例：//举例说明     static URLManager * ins = nil;  (instancetype)sharedInstance {static dispatch_once_t onceToken;dispatch_once(&amp;amp;onceToken, ^{ins = [[">
+<meta name="description" content="##单例模式很常见，但是，能真正把单利模式写对的却很少。在iOS中，一般我们都是用官方推荐的写法来写单例： //举例说明     static URLManager * ins = nil;  (instancetype)sharedInstance {static dispatch_once_t onceToken;dispatch_once(&amp;amp;onceToken, ^{ins = [[">
 <meta property="og:type" content="article">
 <meta property="og:title" content="简谈iOS的单例，看看你理解对了吗？">
 <meta property="og:url" content="http://yoursite.com/2017/08/30/简谈iOS的单例，看看你理解对了吗？/index.html">
 <meta property="og:site_name" content="赵周辰辰的blog空间">
-<meta property="og:description" content="###单例模式很常见，但是，能真正把单利模式写对的却很少。在iOS中，一般我们都是用官方推荐的写法来写单例：//举例说明     static URLManager * ins = nil;  (instancetype)sharedInstance {static dispatch_once_t onceToken;dispatch_once(&amp;amp;onceToken, ^{ins = [[">
+<meta property="og:description" content="##单例模式很常见，但是，能真正把单利模式写对的却很少。在iOS中，一般我们都是用官方推荐的写法来写单例： //举例说明     static URLManager * ins = nil;  (instancetype)sharedInstance {static dispatch_once_t onceToken;dispatch_once(&amp;amp;onceToken, ^{ins = [[">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://yoursite.com/2017/08/30/简谈iOS的单例，看看你理解对了吗？/1.jpg">
-<meta property="og:updated_time" content="2019-08-30T07:14:12.156Z">
+<meta property="og:updated_time" content="2019-08-30T07:16:45.541Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="简谈iOS的单例，看看你理解对了吗？">
-<meta name="twitter:description" content="###单例模式很常见，但是，能真正把单利模式写对的却很少。在iOS中，一般我们都是用官方推荐的写法来写单例：//举例说明     static URLManager * ins = nil;  (instancetype)sharedInstance {static dispatch_once_t onceToken;dispatch_once(&amp;amp;onceToken, ^{ins = [[">
+<meta name="twitter:description" content="##单例模式很常见，但是，能真正把单利模式写对的却很少。在iOS中，一般我们都是用官方推荐的写法来写单例： //举例说明     static URLManager * ins = nil;  (instancetype)sharedInstance {static dispatch_once_t onceToken;dispatch_once(&amp;amp;onceToken, ^{ins = [[">
 <meta name="twitter:image" content="http://yoursite.com/2017/08/30/简谈iOS的单例，看看你理解对了吗？/1.jpg">
 
 
@@ -301,24 +301,29 @@
       
 
       
-        <p>###单例模式很常见，但是，能真正把单利模式写对的却很少。在iOS中，一般我们都是用官方推荐的写法来写单例：<br>//举例说明    </p>
+        <p>##单例模式很常见，但是，能真正把单利模式写对的却很少。在iOS中，一般我们都是用官方推荐的写法来写单例：</p>
+<p>//举例说明    </p>
 <p>static URLManager * ins = nil;</p>
 <ul>
 <li>(instancetype)sharedInstance {<br>static dispatch_once_t onceToken;<br>dispatch_once(&amp;onceToken, ^{<br>ins = [[URLManager alloc] init];<br>});<br>return ins;<br>}<br>这也是我们单例模式的标准写法。 在使用时，我们只需要</li>
 </ul>
 <p>URLManager* a = [URLManager sharedInstance];</p>
 <p>就可以用 a 这个单例来干很多事情了，看起来没有问题。在很多实际的项目中，很多人也的确是这么做的。</p>
-<p>###但是会出现问题<br>在多人开发中，并不能保证所有人都会使用 sharedInstance 方法来创建对象；而一旦有人用 alloc，new 等来创建对象，这就不是单例了。例如：</p>
+<p>##但是会出现问题</p>
+<p>在多人开发中，并不能保证所有人都会使用 sharedInstance 方法来创建对象；而一旦有人用 alloc，new 等来创建对象，这就不是单例了。例如：</p>
 <p>URLManager* a = [URLManager sharedInstance];<br>URLManager* b = [[URLManager alloc] init];<br>URLManager* c = [URLManager new];</p>
 <p>查看 a、b、c ：</p>
 <img src="/2017/08/30/简谈iOS的单例，看看你理解对了吗？/1.jpg" title="This is an example image">
 
 
 <p>可以看到，a、b、c 不是同一个对象，而所谓单例，就是不管我用何种方法创建对象，都必须是同一个。所以，单例模式，绝不是一个 sharedInstance 就够了。</p>
-<p>###方案一<br>那么如何避免这种问题呢？我们知道：在对象创建的时候，alloc、new都会调用到 allocWithZone: 方法；使用拷贝创建对象时，会调用 copyWithZone: 、mutableCopyWithZone:方法；那么，重写这些方法，就可以让创建的对象唯一。</p>
+<p>##方案一</p>
+<p>那么如何避免这种问题呢？我们知道：在对象创建的时候，alloc、new都会调用到 allocWithZone: 方法；使用拷贝创建对象时，会调用 copyWithZone: 、mutableCopyWithZone:方法；那么，重写这些方法，就可以让创建的对象唯一。</p>
 <p>+(id)allocWithZone:(NSZone *)zone{<br>return [self sharedInstance];<br>}<br>-(id)copyWithZone:(NSZone *)zone{<br>return [[self class] sharedInstance];<br>}<br>-(id)mutableCopyWithZone:(NSZone *)zone{<br>return [[self class] sharedInstance];<br>}</p>
-<p>再运行，看一看a、b、c：<br>/Users/zzq/Desktop/658745bdebf863482c29251e1a76d3b8a90.webp<br>都是同一个对象！大功告成！</p>
-<p>###方案二<br>此外，还有一种方法，就是直接禁用掉 alloc、new 、copy等方法：</p>
+<p>再运行，看一看a、b、c：</p>
+
+<p>都是同一个对象！大功告成！</p>
+<p>##方案二<br>此外，还有一种方法，就是直接禁用掉 alloc、new 、copy等方法：</p>
 <ul>
 <li>(instancetype)sharedInstance;</li>
 <li>(instancetype) alloc <strong>attribute</strong>((unavailable(“replace with ‘sharedInstance’”)));</li>
@@ -328,7 +333,9 @@
 <ul>
 <li>(instancetype)sharedInstance {<br>static URLManager * ins = nil;<br>static dispatch_once_t onceToken;<br>dispatch_once(&amp;onceToken, ^{<br>ins = [[super allocWithZone:nil] init];<br>});<br>return ins;<br>}</li>
 </ul>
-<p>如此，在调用这些方法时就会报错，提示使用 sharedInstance 方法：<br>/Users/zzq/Desktop/579627415bd9d47f1ee2b9c438cd4c5afda.webp</p>
+<p>如此，在调用这些方法时就会报错，提示使用 sharedInstance 方法：</p>
+
+
 <p>以此，也可以达到单例模式的要求，始终只有一个对象。</p>
 
       
