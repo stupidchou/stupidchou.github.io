@@ -336,36 +336,54 @@
         
           
             <h3 id="单例模式很常见，但是，能真正把单利模式写对的却很少。在iOS中，一般我们都是用官方推荐的写法来写单例："><a href="#单例模式很常见，但是，能真正把单利模式写对的却很少。在iOS中，一般我们都是用官方推荐的写法来写单例：" class="headerlink" title="单例模式很常见，但是，能真正把单利模式写对的却很少。在iOS中，一般我们都是用官方推荐的写法来写单例："></a>单例模式很常见，但是，能真正把单利模式写对的却很少。在iOS中，一般我们都是用官方推荐的写法来写单例：</h3><p>//举例说明    </p>
-<p>static URLManager * ins = nil;</p>
-<ul>
-<li>(instancetype)sharedInstance {<br>static dispatch_once_t onceToken;<br>dispatch_once(&amp;onceToken, ^{<br>ins = [[URLManager alloc] init];<br>});<br>return ins;<br>}<br>这也是我们单例模式的标准写法。 在使用时，我们只需要</li>
-</ul>
+<pre><code>static URLManager * ins = nil;
++ (instancetype)sharedInstance {
+    static dispatch_once_t onceToken;
+    dispatch_once(&amp;onceToken, ^{
+    ins = [[URLManager alloc] init];
+    });
+    return ins;
+}</code></pre><p>这也是我们单例模式的标准写法。 在使用时，我们只需要</p>
 <p>URLManager* a = [URLManager sharedInstance];</p>
 <p>就可以用 a 这个单例来干很多事情了，看起来没有问题。在很多实际的项目中，很多人也的确是这么做的。</p>
 <h3 id="但是会出现问题"><a href="#但是会出现问题" class="headerlink" title="但是会出现问题"></a>但是会出现问题</h3><p>在多人开发中，并不能保证所有人都会使用 sharedInstance 方法来创建对象；而一旦有人用 alloc，new 等来创建对象，这就不是单例了。例如：</p>
-<p>URLManager* a = [URLManager sharedInstance];<br>URLManager* b = [[URLManager alloc] init];<br>URLManager* c = [URLManager new];</p>
-<p>查看 a、b、c ：</p>
+<pre><code>URLManager* a = [URLManager sharedInstance];
+URLManager* b = [[URLManager alloc] init];
+URLManager* c = [URLManager new];</code></pre><p>查看 a、b、c ：</p>
 <img src="/2017/08/30/简谈iOS的单例，看看你理解对了吗？/1.jpg" title="This is an example image">
 
 
 <p>可以看到，a、b、c 不是同一个对象，而所谓单例，就是不管我用何种方法创建对象，都必须是同一个。所以，单例模式，绝不是一个 sharedInstance 就够了。</p>
 <h3 id="方案一"><a href="#方案一" class="headerlink" title="方案一"></a>方案一</h3><p>那么如何避免这种问题呢？我们知道：在对象创建的时候，alloc、new都会调用到 allocWithZone: 方法；使用拷贝创建对象时，会调用 copyWithZone: 、mutableCopyWithZone:方法；那么，重写这些方法，就可以让创建的对象唯一。</p>
-<p>+(id)allocWithZone:(NSZone *)zone{<br>return [self sharedInstance];<br>}<br>-(id)copyWithZone:(NSZone *)zone{<br>return [[self class] sharedInstance];<br>}<br>-(id)mutableCopyWithZone:(NSZone *)zone{<br>return [[self class] sharedInstance];<br>}</p>
-<p>再运行，看一看a、b、c：</p>
+<pre><code>+(id)allocWithZone:(NSZone *)zone{
+    return [self sharedInstance];
+}
+-(id)copyWithZone:(NSZone *)zone{
+    return [[self class] sharedInstance];
+}
+-(id)mutableCopyWithZone:(NSZone *)zone{
+    return [[self class] sharedInstance];
+}</code></pre><p>再运行，看一看a、b、c：</p>
 <img src="/2017/08/30/简谈iOS的单例，看看你理解对了吗？/2.jpg" title="This is an example image">
 
 <p>都是同一个对象！大功告成！</p>
 <h3 id="方案二"><a href="#方案二" class="headerlink" title="方案二"></a>方案二</h3><p>此外，还有一种方法，就是直接禁用掉 alloc、new 、copy等方法：</p>
-<ul>
-<li>(instancetype)sharedInstance;</li>
-<li>(instancetype) alloc <strong>attribute</strong>((unavailable(“replace with ‘sharedInstance’”)));</li>
-<li>(instancetype) new <strong>attribute</strong>((unavailable(“replace with ‘sharedInstance’”)));</li>
-</ul>
-<p>-(instancetype) copy <strong>attribute</strong>((unavailable(“replace with ‘sharedInstance’”)));<br>-(instancetype) mutableCopy <strong>attribute</strong>((unavailable(“replace with ‘sharedInstance’”)));</p>
-<ul>
-<li>(instancetype)sharedInstance {<br>static URLManager * ins = nil;<br>static dispatch_once_t onceToken;<br>dispatch_once(&amp;onceToken, ^{<br>ins = [[super allocWithZone:nil] init];<br>});<br>return ins;<br>}</li>
-</ul>
-<p>如此，在调用这些方法时就会报错，提示使用 sharedInstance 方法：</p>
+<pre><code>+ (instancetype)sharedInstance;
++(instancetype) alloc __attribute__((unavailable(&quot;replace with &apos;sharedInstance&apos;&quot;)));
++(instancetype) new __attribute__((unavailable(&quot;replace with &apos;sharedInstance&apos;&quot;)));
+-(instancetype) copy __attribute__((unavailable(&quot;replace with &apos;sharedInstance&apos;&quot;)));
+-(instancetype) mutableCopy __attribute__((unavailable(&quot;replace with &apos;sharedInstance&apos;&quot;)));
+
+
+
++ (instancetype)sharedInstance {
+    static URLManager * ins = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&amp;onceToken, ^{
+    ins = [[super allocWithZone:nil] init];
+    });
+    return ins;
+}</code></pre><p>如此，在调用这些方法时就会报错，提示使用 sharedInstance 方法：</p>
 <img src="/2017/08/30/简谈iOS的单例，看看你理解对了吗？/3.jpg" title="This is an example image">
 
 <p>以此，也可以达到单例模式的要求，始终只有一个对象。</p>
